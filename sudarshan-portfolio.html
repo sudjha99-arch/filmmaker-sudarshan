@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudarshan — Filmmaker | Visual Artist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400;500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --olive: #7a8069;
+  --olive-light: #9aa08a;
+  --olive-pale: #b5b9a3;
+  --beige: #d9d3c0;
+  --beige-light: #ece8dc;
+  --paper: #f0ebe0;
+  --paper-warm: #ede7d8;
+  --charcoal: #1a1814;
+  --charcoal-mid: #2e2b26;
+  --brown: #4a2e0e;
+  --brown-mid: #6b4220;
+  --brown-light: #8c5a2e;
+  --shadow: rgba(26,24,20,0.18);
+  --grain-opacity: 0.04;
+  --transition: 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: var(--charcoal);
+  color: var(--beige);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--beige-light);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  position: fixed;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(209,203,192,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring.expanded { width: 60px; height: 60px; border-color: rgba(209,203,192,0.2); }
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: var(--grain-opacity);
+  pointer-events: none;
+  z-index: 9990;
+  animation: grain 8s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)}
+  10%{transform:translate(-2%,-3%)}
+  20%{transform:translate(3%,1%)}
+  30%{transform:translate(-1%,4%)}
+  40%{transform:translate(4%,-2%)}
+  50%{transform:translate(-3%,2%)}
+  60%{transform:translate(2%,3%)}
+  70%{transform:translate(-4%,-1%)}
+  80%{transform:translate(1%,-4%)}
+  90%{transform:translate(3%,2%)}
+}
+
+/* Loading screen */
+#loader {
+  position: fixed; inset: 0;
+  background: var(--charcoal);
+  z-index: 9997;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2rem;
+  transition: opacity 1.2s ease, visibility 1.2s ease;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 300;
+  color: var(--beige);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+}
+.loader-line {
+  width: 0;
+  height: 1px;
+  background: var(--olive);
+  animation: expandLine 1.2s ease 0.6s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes expandLine {
+  from { width: 0; }
+  to { width: 120px; }
+}
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  mix-blend-mode: normal;
+}
+.nav-logo {
+  font-family: 'Cormorant SC', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--beige-light);
+  text-decoration: none;
+  opacity: 0;
+  animation: fadeDown 0.8s ease 1.8s forwards;
+}
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+  opacity: 0;
+  animation: fadeDown 0.8s ease 2s forwards;
+}
+.nav-links a {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--olive-pale);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.nav-links a:hover { color: var(--beige-light); }
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 55% 45%;
+  overflow: hidden;
+  background: #1c1a16;
+}
+
+.hero-image-side {
+  position: relative;
+  overflow: hidden;
+}
+.hero-portrait {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transform: scale(1.05);
+  transition: transform 12s ease;
+  filter: saturate(0.75) contrast(1.05);
+}
+#hero:hover .hero-portrait { transform: scale(1); }
+
+/* Painterly portrait using CSS - since we can't embed actual image, use a cinematic gradient composition */
+.hero-portrait-art {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      to right,
+      #171511 0%,
+      #1b1814 40%,
+      #1c1a16 100%
+    );
+}
+
+/* Warm cinematic bokeh glow */
+.hero-bokeh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 38% 42%,
+      rgba(170, 120, 60, 0.45) 0%,
+      rgba(120, 80, 40, 0.25) 18%,
+      rgba(40, 25, 10, 0.08) 42%,
+      transparent 65%
+    );
+
+  filter: blur(70px);
+  transform: scale(1.2);
+  opacity: 0.9;
+  z-index: 1;
+}
+
+/* Artwork image */
+.hero-artwork {
+  position: absolute;
+  left: 46%;
+  top: -21%;
+  transform: translate(-50%, -50%);
+  height: 330%;
+  width: auto;
+
+  object-fit: contain;
+
+  z-index: 2;
+
+
+  opacity: 0.9;
+
+  filter:
+    contrast(1.05)
+    saturate(0.9)
+    brightness(0.92)
+    drop-shadow(0 0 60px rgba(0,0,0,0.5));
+}
+
+/* Dark fade into text side */
+.hero-portrait-art::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 35%;
+  height: 100%;
+
+  background: linear-gradient(
+    to right,
+    rgba(28, 26, 22, 0) 0%,
+    rgba(28, 26, 22, 0.75) 55%,
+    rgba(28, 26, 22, 1) 100%
+  );
+
+  z-index: 3;
+}
+.hero-text-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 6rem 0 4rem;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--olive-light);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.1s forwards;
+}
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 7vw, 4.4rem);
+  font-weight: 290;
+  line-height: 0.9;
+  color: var(--paper);
+  letter-spacing: 0.1em;
+  margin-bottom: -1.5rem;
+  opacity: 0;
+  margin-top: 16rem;
+  animation: fadeUp 0.9s ease 2.3s forwards;
+}
+.hero-role {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--olive-pale);
+  line-height: 2.2;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.5s forwards;
+  text-align: right;
+align-self: flex-end;
+margin-right: 2rem;
+}
+.hero-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--olive);
+  margin: 2.5rem 0;
+  opacity: 0;
+  animation: expandLine 0.8s ease 2.4s forwards;
+}
+.hero-scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.8s forwards;
+}
+.hero-scroll span {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+.scroll-line {
+  width: 40px; height: 1px;
+  background: var(--olive);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0; width: 100%; height: 100%;
+  background: var(--beige);
+  animation: scrollAnim 2s ease infinite 3s;
+}
+@keyframes scrollAnim {
+  0% { left: -100%; }
+  50%,100% { left: 100%; }
+}
+
+.hero-year {
+  position: absolute;
+  top: 50%;
+  left: -1.5rem;
+  transform: translateY(-50%) rotate(-90deg);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--olive);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.6s forwards;
+  margin-left: 88px;
+}
+
+/* ── PHILOSOPHY ── */
+#philosophy {
+  background: var(--charcoal-mid);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.philosophy-text {
+  padding: 10rem 5rem 8rem 8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.section-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.section-label::before {
+  content: '';
+  width: 30px; height: 1px;
+  background: var(--olive);
+  display: inline-block;
+}
+
+.philosophy-block {
+  margin-bottom: 3.5rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.philosophy-block.visible { opacity: 1; transform: translateY(0); }
+
+.philosophy-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--brown-light);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+.philosophy-text-body {
+  font-size: 0.85rem;
+  line-height: 2;
+  color: var(--olive-pale);
+  font-weight: 300;
+}
+
+.philosophy-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #161510;
+}
+
+/* Fish hanging illustration */
+.fish-container {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 3rem;
+}
+.fish-svg {
+  width: 100%; height: 100%;
+  position: absolute; top: 0;
+  opacity: 0.85;
+}
+
+/* ── FILMS ── */
+#films {
+  background: var(--charcoal);
+  padding-top: 8rem;
+  padding-bottom: 2rem;
+}
+
+.section-header {
+  padding: 0 8rem;
+  margin-bottom: 5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 300;
+  color: var(--paper);
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+.section-count {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.films-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--charcoal-mid);
+}
+
+.film-card {
+  position: relative;
+  aspect-ratio: auto;
+min-height: 420px;
+  overflow: hidden;
+  background: var(--charcoal-mid);
+  cursor: none;
+}
+
+/* grid placement */
+.film-card:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.film-card:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.film-card:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.film-card:nth-child(4) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.film-card:nth-child(5) {
+  grid-column: 1 / -1;
+  grid-row: 3;
+
+  aspect-ratio: auto;
+  height: 390px;
+  min-height: 390px;
+}
+.film-card:nth-child(5) .film-info {
+  padding: 2rem 3rem;
+  bottom: 0;
+}
+
+.film-bg {
+  position: absolute; inset: 0;
+  transition: transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.9s ease;
+  transform-origin: center;
+}
+.film-card:hover .film-bg { transform: scale(1.04); filter: brightness(0.6) saturate(0.8); }
+
+/* Cinematic film stills using CSS painting */
+.film-1 .film-bg {
+  background-image: url('/hidad.jpeg');
+  background-size: cover;
+  background-position: center;
+}
+
+.film-2 .film-bg {
+  background-image: url('/paanch\ sitare2\ .jpeg');
+  background-size: cover;
+  background-position: center top;
+}
+
+.film-3 .film-bg {
+  background-image: url('/fareed\ manzil.jpeg');
+  background-size: cover;
+  background-position: center;
+}
+
+.film-4 .film-bg {
+  background-image: url('/through\ my\ eyes.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.film-5 .film-bg {
+  background-image: url('/perception\ and\ us.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.film-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,12,8,0.9) 0%, rgba(15,12,8,0.2) 50%, transparent 100%);
+  transition: opacity 0.6s ease;
+}
+.film-card:hover .film-overlay { opacity: 0.7; }
+
+.film-info {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 2.5rem 3rem;
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+.film-number {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--olive-light);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.film-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 300;
+  color: var(--paper);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.film-meta {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--olive-pale);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.film-synopsis {
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: rgba(220,213,200,0.7);
+  max-width: 380px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
+}
+.film-card:hover .film-synopsis { opacity: 1; transform: translateY(0); }
+
+.film-watch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--beige-light);
+  text-decoration: none;
+  margin-top: 1.2rem;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.15s;
+}
+.film-card:hover .film-watch { opacity: 1; }
+.film-watch::after {
+  content: '';
+  width: 20px; height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+.film-watch:hover::after { width: 35px; }
+
+/* ── SCREENPLAYS ── */
+#screenplays {
+  background: var(--paper-warm);
+  padding: 10rem 8rem;
+  position: relative;
+  overflow: hidden;
+}
+#screenplays::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 27px,
+    rgba(100,80,50,0.06) 27px,
+    rgba(100,80,50,0.06) 28px
+  );
+}
+
+.screenplay-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 6rem;
+}
+.screenplay-title-block .section-title { color: var(--charcoal); }
+.screenplay-label { color: var(--brown-mid); }
+.screenplay-label::before { background: var(--brown-mid); }
+
+.screenplay-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.screenplay-card {
+  position: relative;
+  padding: 3rem;
+  background: rgba(255,252,245,0.7);
+  border-left: 2px solid var(--brown-light);
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease, box-shadow 0.4s ease;
+}
+.screenplay-card.visible { opacity: 1; transform: translateY(0); }
+.screenplay-card:hover { box-shadow: 0 20px 60px rgba(60,30,10,0.12); }
+
+.screenplay-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem;
+  font-weight: 300;
+  color: rgba(140,90,46,0.1);
+  position: absolute;
+  top: 1rem; right: 2rem;
+  line-height: 1;
+}
+.screenplay-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--charcoal);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+.screenplay-type {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brown-mid);
+  margin-bottom: 1.5rem;
+}
+.screenplay-synopsis {
+  font-size: 0.83rem;
+  line-height: 2;
+  color: var(--charcoal-mid);
+  font-weight: 300;
+  margin-bottom: 2rem;
+}
+.screenplay-link {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--brown-light);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: gap 0.3s ease;
+}
+.screenplay-link::after { content: '→'; }
+.screenplay-link:hover { gap: 1.2rem; }
+
+/* ── BOOK ── */
+#book {
+  background: var(--charcoal);
+  min-height: 80vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+#book::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 60% 50%, rgba(80,55,30,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.book-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem;
+  position: relative;
+}
+.book-mockup {
+  position: relative;
+  width: 220px;
+  transform: perspective(1000px) rotateY(-12deg) rotateX(3deg);
+  transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+  animation: bookFloat 6s ease-in-out infinite;
+}
+@keyframes bookFloat {
+  0%,100% { transform: perspective(1000px) rotateY(-12deg) rotateX(3deg) translateY(0); }
+  50% { transform: perspective(1000px) rotateY(-12deg) rotateX(3deg) translateY(-12px); }
+}
+.book-mockup:hover { transform: perspective(1000px) rotateY(-5deg) rotateX(1deg) translateY(-8px); }
+
+.book-face {
+  background: var(--paper-warm);
+  border-radius: 2px 8px 8px 2px;
+  padding: 2.5rem 2rem;
+  box-shadow:
+    -8px 0 0 rgba(0,0,0,0.2),
+    -16px 4px 20px rgba(0,0,0,0.4),
+    0 30px 60px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.book-face::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0; width: 8px;
+  background: linear-gradient(to right, rgba(0,0,0,0.15), transparent);
+}
+.book-cover-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--charcoal);
+  line-height: 1.3;
+  letter-spacing: 0.03em;
+}
+.book-cover-scrawl {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  color: rgba(50,30,10,0.06);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-style: italic;
+}
+.book-cover-author {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brown-mid);
+  font-family: 'Jost', sans-serif;
+}
+
+.book-info {
+  padding: 5rem 6rem 5rem 4rem;
+}
+.book-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.book-eyebrow::before { content: ''; width: 25px; height: 1px; background: var(--olive); display: inline-block; }
+
+.book-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 300;
+  color: var(--paper);
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+.book-subtitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--olive-light);
+  margin-bottom: 2.5rem;
+}
+.book-desc {
+  font-size: 0.85rem;
+  line-height: 2;
+  color: var(--olive-pale);
+  max-width: 380px;
+  margin-bottom: 2.5rem;
+}
+.book-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--beige);
+  text-decoration: none;
+  border-bottom: 1px solid var(--olive);
+  padding-bottom: 0.3rem;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.book-link:hover { color: var(--paper); border-color: var(--beige); }
+
+/* ── ARTWORK ── */
+/* ── ARTWORK ── */
+#artwork {
+  background: #0e0c09;
+  padding: 8rem 0 6rem;
+}
+
+.artwork-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 5rem;
+  padding: 0 6rem;
+}
+.artwork-header .section-title { color: var(--paper); }
+.artwork-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--beige-light);
+  text-decoration: none;
+  align-self: flex-end;
+  margin-bottom: 0.2rem;
+  transition: gap 0.3s ease, color 0.3s ease;
+}
+.artwork-view-all::after {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease;
+  display: inline-block;
+}
+.artwork-view-all:hover {
+  color: var(--paper);
+  gap: 1.2rem;
+}
+.artwork-view-all:hover::after {
+  width: 35px;
+}
+/* ── Gallery: two clean rows, no auto-rows chaos ── */
+.artwork-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 3px;
+}
+
+/* Each row is a horizontal strip */
+.artwork-row {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+/* Row 1: 500px tall — 4 portrait panels */
+.artwork-row-1 {
+  height: 500px;
+}
+
+/* Row 2: 420px tall — 6 panels (2 wide + 4 narrow) */
+.artwork-row-2 {
+  height: 420px;
+}
+
+/* Each item stretches to fill row height */
+.artwork-item {
+  position: relative;
+  overflow: hidden;
+  background: #111009;
+  cursor: none;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+/* Row 1 widths — 4 portrait items */
+.artwork-row-1 .artwork-item:nth-child(1) { flex: 1.2; }   /* bookmark — warm portrait */
+.artwork-row-1 .artwork-item:nth-child(2) { flex: 1.2; }   /* sky/man — blue tall */
+.artwork-row-1 .artwork-item:nth-child(3) { flex: 1; }     /* charcoal sketch */
+.artwork-row-1 .artwork-item:nth-child(4) { flex: 1; }     /* dark figure */
+
+/* Row 2 widths — 6 panels */
+.artwork-row-2 .artwork-item:nth-child(1) { flex: 1.6; }   /* Two Men — wide */
+.artwork-row-2 .artwork-item:nth-child(2) { flex: 1.6; }   /* Sitar — wide */
+.artwork-row-2 .artwork-item:nth-child(3) { flex: 0.75; }  /* Inward — narrow CENTER */
+.artwork-row-2 .artwork-item:nth-child(4) { flex: 0.85; }  /* The Watcher */
+.artwork-row-2 .artwork-item:nth-child(5) { flex: 1; }     /* Man with Pipe */
+.artwork-row-2 .artwork-item:nth-child(6) { flex: 1; }     /* Perception Inverted */
+/* Image fills the cell perfectly */
+.artwork-item img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transition: transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.9s ease;
+  filter: saturate(0.82) brightness(0.88);
+}
+
+.artwork-item:hover img {
+  transform: scale(1.05);
+  filter: saturate(0.55) brightness(0.48);
+}
+
+/* Hover label */
+.artwork-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 3rem 1.8rem 1.6rem;
+  background: linear-gradient(to top, rgba(6,4,2,0.96) 0%, rgba(6,4,2,0.45) 55%, transparent 100%);
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  z-index: 2;
+}
+.artwork-item:hover .artwork-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.artwork-label-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+  font-weight: 300;
+  color: var(--paper);
+  font-style: italic;
+  line-height: 1.3;
+  margin-bottom: 0.35rem;
+}
+.artwork-label-sub {
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive-light);
+}
+
+/* Number badge top-left on hover */
+.artwork-item::before {
+  content: attr(data-num);
+  position: absolute;
+  top: 1.2rem;
+  left: 1.4rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.32em;
+  color: var(--olive-light);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.08s;
+  z-index: 3;
+}
+.artwork-item:hover::before { opacity: 1; }
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .artwork-row-1 { height: 360px; }
+  .artwork-row-2 { height: 300px; }
+  #artwork { padding: 6rem 0 4rem; }
+  .artwork-header { padding: 0 3rem; }
+}
+
+/* Mobile — stack into a 2-column grid */
+@media (max-width: 640px) {
+  .artwork-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    padding: 0 2px;
+  }
+  .artwork-row {
+    display: contents; /* unwrap flex rows so items flow into grid */
+  }
+  .artwork-item {
+    height: 200px;
+    flex: none;
+  }
+  /* Make first and seventh span full width for variety */
+  .artwork-row-1 .artwork-item:nth-child(1) { grid-column: 1 / 3; height: 260px; }
+  .artwork-row-2 .artwork-item:nth-child(1) { grid-column: 1 / 3; height: 220px; }
+  .artwork-header { padding: 0 1.5rem; margin-bottom: 3rem; }
+}
+
+/* ── ABOUT ── */
+#about {
+  background: var(--charcoal-mid);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  overflow: hidden;
+}
+
+.about-image {
+  position: relative;
+  height: 100%;
+  min-height: 80vh;
+  overflow: hidden;
+  background: #1a1510;
+}
+.about-portrait {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 55% 60% at 40% 38%, #3a2a18 0%, transparent 55%),
+    radial-gradient(ellipse 35% 45% at 50% 28%, #2a1e10 0%, transparent 48%),
+    radial-gradient(ellipse 40% 40% at 55% 55%, #1a1008 0%, transparent 50%),
+    radial-gradient(ellipse 70% 80% at 30% 70%, #2a1e10 0%, transparent 55%),
+    linear-gradient(160deg, #2a1f12 0%, #1a1208 40%, #0d0a06 100%);
+  transition: transform 0.8s ease;
+}
+.about-portrait::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 30% 40% at 38% 35%, rgba(220,170,110,0.28) 0%, transparent 50%),
+    radial-gradient(ellipse 20% 25% at 45% 25%, rgba(240,200,150,0.15) 0%, transparent 40%),
+    radial-gradient(ellipse 25% 20% at 55% 42%, rgba(160,120,70,0.2) 0%, transparent 40%),
+    radial-gradient(ellipse 35% 30% at 35% 60%, rgba(80,55,30,0.25) 0%, transparent 45%);
+}
+.about-portrait::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, transparent 60%, var(--charcoal-mid) 100%);
+}
+
+.about-content {
+  padding: 6rem 6rem 6rem 4rem;
+}
+.about-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 4vw, 3.8rem);
+  font-weight: 300;
+  color: var(--paper);
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+.about-tag {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--olive-light);
+  margin-bottom: 3rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.about-tag::before { content: ''; width: 25px; height: 1px; background: var(--olive); display: inline-block; }
+
+.about-bio {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 300;
+  line-height: 1.9;
+  color: var(--beige);
+  font-style: italic;
+  margin-bottom: 3rem;
+  max-width: 440px;
+}
+.about-bio em {
+  color: var(--brown-light);
+  font-style: normal;
+}
+
+.about-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.about-detail-item {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(122,128,105,0.2);
+}
+.detail-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 0.4rem;
+}
+.detail-value {
+  font-size: 0.82rem;
+  color: var(--beige-light);
+  font-weight: 300;
+}
+
+/* ── CONTACT ── */
+#contact {
+  background: var(--charcoal);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+#contact::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 50%, rgba(74,46,14,0.06) 0%, transparent 60%);
+}
+
+.contact-year {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(8rem, 20vw, 16rem);
+  font-weight: 300;
+  color: rgba(122,128,105,0.05);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.contact-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 3rem;
+}
+
+.contact-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 300;
+  color: var(--paper);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+.contact-subtitle {
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--olive-pale);
+  max-width: 400px;
+  margin: 0 auto 4rem;
+}
+
+.contact-info {
+  display: flex;
+  gap: 4rem;
+  margin-bottom: 5rem;
+  align-items: flex-start;
+}
+.contact-item {
+  text-align: left;
+}
+.contact-item-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 0.4rem;
+}
+.contact-item-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--beige-light);
+  font-style: italic;
+}
+.contact-item-value a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.contact-item-value a:hover { color: var(--paper); }
+
+.contact-form {
+  width: 100%;
+  max-width: 560px;
+  text-align: left;
+}
+.form-group {
+  margin-bottom: 2rem;
+  position: relative;
+}
+.form-label {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 0.8rem;
+}
+.form-input, .form-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(122,128,105,0.3);
+  padding: 0.8rem 0;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--beige);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+.form-input:focus, .form-textarea:focus {
+  border-bottom-color: var(--olive-light);
+}
+.form-textarea { resize: none; height: 100px; }
+
+.form-submit {
+  background: transparent;
+  border: 1px solid var(--olive);
+  color: var(--beige);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  padding: 1.2rem 3rem;
+  cursor: none;
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+  margin-top: 1rem;
+}
+.form-submit:hover {
+  background: var(--olive);
+  color: var(--charcoal);
+}
+
+/* Footer */
+footer {
+  background: var(--charcoal);
+  border-top: 1px solid rgba(122,128,105,0.1);
+  padding: 2rem 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-name {
+  font-family: 'Cormorant SC', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--olive);
+}
+.footer-right {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+/* Scroll reveal utility */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  #hero { grid-template-columns: 1fr; }
+  .hero-text-side { padding: 8rem 3rem 4rem; min-height: 60vh; }
+  .hero-image-side { height: 60vh; }
+  #philosophy { grid-template-columns: 1fr; }
+  .philosophy-image { min-height: 50vh; }
+  .philosophy-text { padding: 5rem 4rem; }
+  #films .section-header { padding: 0 4rem; }
+  .films-grid { grid-template-columns: 1fr; }
+  .film-card:nth-child(1),
+  .film-card:nth-child(2),
+  .film-card:nth-child(3),
+  .film-card:nth-child(4) { grid-column: 1; grid-row: auto; aspect-ratio: 16/10; }
+  #screenplays { padding: 6rem 4rem; }
+  .screenplay-grid { grid-template-columns: 1fr; }
+  #book { grid-template-columns: 1fr; min-height: auto; }
+  .book-visual { padding: 4rem; }
+  .book-info { padding: 3rem 4rem; }
+  #artwork { padding: 6rem 3rem; }
+  .artwork-grid { grid-template-columns: 1fr 1fr; }
+  .artwork-item:nth-child(1) { grid-row: auto; }
+  .artwork-item:nth-child(4) { grid-column: auto; aspect-ratio: 3/4; }
+  #about { grid-template-columns: 1fr; }
+  .about-image { min-height: 60vh; }
+  .about-content { padding: 4rem; }
+  nav { padding: 1.5rem 2rem; }
+  .nav-links { gap: 1.5rem; }
+  footer { padding: 2rem 3rem; }
+  .contact-info { flex-direction: column; gap: 2rem; }
+}
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .hero-name { font-size: 3rem; }
+  #screenplays { padding: 5rem 2rem; }
+  .artwork-grid { grid-template-columns: 1fr; }
+  .artwork-item:nth-child(1) { grid-column: auto; }
+  .artwork-item:nth-child(4) { grid-column: auto; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; }
+}
+
+@media (max-width: 640px) {
+
+  /* remove desktop cursor */
+  body{
+    cursor: auto;
+  }
+
+  .cursor,
+  .cursor-ring{
+    display: none !important;
+  }
+
+  /* top nav */
+  nav{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    padding: 1rem 0.8rem 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nav-logo{
+    display: none;
+  }
+
+  .nav-links{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    white-space: nowrap;
+    opacity: 1;
+    animation: none;
+    top: 20px;
+  }
+
+  .nav-links li{
+    flex: 0 0 auto;
+  }
+
+  .nav-links a{
+    font-size: 0.55rem;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    font-weight: bolder;
+  }
+
+  /* hero */
+  #hero{
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    display: block;
+    background: #1c1a16;
+  }
+
+  .hero-image-side{
+    position: absolute;
+    inset: 0;
+    width: 107%;
+    height: 137%;
+    z-index: 1;
+  }
+
+  .hero-portrait-art{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(170,115,45,0.45) 0%, rgba(65,45,20,0.28) 22%, rgba(28,26,22,0) 62%),
+      linear-gradient(to bottom, #211c16 0%, #1c1a16 55%, #14120f 100%);
+  }
+
+  .hero-bokeh{
+    opacity: 0.9;
+    filter: blur(85px);
+  }
+
+ .hero-artwork{
+    position: absolute;
+    left: 50%;
+    top: calc(24% - 100px);
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: 105%;
+    min-width: 90%;
+    object-fit: contain;
+    object-position: center top;
+    opacity: 1;
+    mix-blend-mode: normal;
+    filter:
+      brightness(1.05)
+      contrast(1.1)
+      saturate(1.0)
+      drop-shadow(0 0 40px rgba(0,0,0,0.6));
+  }
+.hero-portrait-art::before{
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgba(28,26,22,1) 0%, rgba(28,26,22,1) 18%, rgba(28,26,22,0.85) 32%, rgba(28,26,22,0.4) 46%, rgba(28,26,22,0) 62%);
+    z-index: 5;
+    pointer-events: none;
+    height: 100vh;
+  }
+
+  .hero-portrait-art::after{
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: 4;
+    pointer-events: none;
+  }
+  /* text */
+  .hero-text-side{
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    padding: 0 1.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  .hero-eyebrow{
+    display: none;
+  }
+
+  .hero-name{
+    margin: 0;
+    font-size: 2.5rem;
+    line-height: 0.92;
+    letter-spacing: 0.15em;
+            margin-left: 1rem;
+        margin-bottom: 0rem;
+  }
+
+  .hero-divider{
+    width: 30px;
+    margin: 0.9rem 0;
+  }
+
+  .hero-role{
+    align-self: flex-start;
+    text-align: left;
+    margin-right: 0;
+    font-size: 0.58rem;
+    line-height: 2;
+    letter-spacing: 0.18em;
+    margin-left: 1rem;
+        margin-bottom: 1rem;
+  }
+
+  .hero-year{
+    display: none;
+  }
+
+  .hero-scroll{
+    left: 1.25rem;
+    bottom: 1rem;
+    z-index: 6;
+  }
+
+  .hero-scroll span{
+    font-size: 0.48rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Loading screen -->
+<div id="loader">
+  <div class="loader-name">Sudarshan</div>
+  <div class="loader-line"></div>
+</div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#hero" class="nav-logo"> </a>
+  <ul class="nav-links">
+    <li><a href="#films">Films</a></li>
+    <li><a href="#screenplays">Writing</a></li>
+    <li><a href="#book">Book</a></li>
+    <li><a href="#artwork">Art</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-image-side">
+    <div class="hero-portrait-art">
+  <div class="hero-bokeh"></div>
+
+  <img 
+    src="hero img3.webp" 
+    alt="Portrait Artwork"
+    class="hero-artwork"
+  >
+</div>
+  </div>
+  <div class="hero-text-side">
+  
+    <h1 class="hero-name">SUDARSHAN</h1>
+    <div class="hero-divider"></div>
+    <div class="hero-role">
+      Filmmaker<br>
+      Cinematographer<br>
+      Screenwriter<br>
+      Visual Artist
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══ PHILOSOPHY ══ -->
+<section id="philosophy">
+  <div class="philosophy-text">
+    <div class="section-label screenplay-label">Approach</div>
+
+    <div class="philosophy-block">
+      <h3 class="philosophy-heading">Approach</h3>
+      <p class="philosophy-text-body">I look for moments that are often missed<br>in the urgency of everyday life,<br>and allow them to unfold without interruption.</p>
+    </div>
+
+    <div class="philosophy-block" style="transition-delay:0.15s">
+      <h3 class="philosophy-heading">Observation</h3>
+      <p class="philosophy-text-body">Stories are not constructed.<br>They exist around us, waiting to be noticed.</p>
+    </div>
+
+    <div class="philosophy-block" style="transition-delay:0.3s">
+      <h3 class="philosophy-heading">Intent</h3>
+      <p class="philosophy-text-body">I try not to impose my own lens on the image.<br>The story should arrive in its purest form.</p>
+    </div>
+
+    <div class="philosophy-block" style="transition-delay:0.45s">
+      <h3 class="philosophy-heading">Form</h3>
+      <p class="philosophy-text-body">Life as it is.<br>A slight movement of a curtain,<br>the faint sound of birds.</p>
+    </div>
+  </div>
+
+  <div class="philosophy-image">
+    <!-- Hanging fish illustration -->
+    <svg class="fish-svg" viewBox="0 0 600 750" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fishGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#3a3520;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#1a1810;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="fishGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2a2a18;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#15150c;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+
+      <!-- Hanging lines -->
+      <line x1="120" y1="0" x2="115" y2="220" stroke="#2a2820" stroke-width="1.5"/>
+      <line x1="200" y1="0" x2="195" y2="180" stroke="#2a2820" stroke-width="1.5"/>
+      <line x1="290" y1="0" x2="285" y2="200" stroke="#2a2820" stroke-width="1.5"/>
+      <line x1="370" y1="0" x2="375" y2="160" stroke="#2a2820" stroke-width="1.5"/>
+      <line x1="460" y1="0" x2="455" y2="210" stroke="#2a2820" stroke-width="1.5"/>
+
+      <!-- Hook 1 -->
+      <path d="M115 218 C115 228, 125 232, 125 242 C125 250, 118 255, 115 255" fill="none" stroke="#3a3530" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Fish 1 (largest, leftmost) -->
+      <g transform="translate(75, 240)">
+        <ellipse cx="45" cy="120" rx="30" ry="85" fill="url(#fishGrad1)" opacity="0.9"/>
+        <ellipse cx="45" cy="120" rx="22" ry="72" fill="none" stroke="#2a2818" stroke-width="0.5" opacity="0.5"/>
+        <!-- tail -->
+        <path d="M30 198 L10 225 L45 215 L80 225 L60 198 Z" fill="url(#fishGrad1)" opacity="0.8"/>
+        <!-- scales pattern -->
+        <path d="M38 80 Q45 76 52 80 M35 92 Q45 87 55 92 M33 104 Q45 99 57 104 M33 116 Q45 111 57 116 M34 128 Q45 123 56 128 M35 140 Q45 135 55 140 M37 152 Q45 147 53 152 M39 164 Q45 160 51 164 M41 176 Q45 172 49 176" stroke="#1a1810" stroke-width="0.5" fill="none" opacity="0.4"/>
+        <!-- eye -->
+        <circle cx="43" cy="58" r="4" fill="#0a0a08" opacity="0.7"/>
+        <circle cx="44" cy="57" r="1.5" fill="#2a2015" opacity="0.8"/>
+        <!-- fins -->
+        <path d="M45 90 L15 75 L45 110 Z" fill="#2a2818" opacity="0.5"/>
+        <path d="M45 130 L75 115 L45 155 Z" fill="#2a2818" opacity="0.5"/>
+      </g>
+
+      <!-- Hook 2 -->
+      <path d="M195 178 C195 188, 205 192, 205 202 C205 210, 198 215, 195 215" fill="none" stroke="#3a3530" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Fish 2 -->
+      <g transform="translate(170, 208)">
+        <ellipse cx="35" cy="95" rx="24" ry="68" fill="url(#fishGrad2)" opacity="0.85"/>
+        <path d="M24 157 L8 180 L35 172 L62 180 L48 157 Z" fill="url(#fishGrad2)" opacity="0.75"/>
+        <path d="M29 62 Q35 58 41 62 M27 72 Q35 68 43 72 M26 82 Q35 78 44 82 M26 92 Q35 88 44 92 M26 102 Q35 98 44 102 M27 112 Q35 108 43 112 M28 122 Q35 118 42 122 M30 132 Q35 128 40 132" stroke="#151508" stroke-width="0.5" fill="none" opacity="0.4"/>
+        <circle cx="33" cy="47" r="3.5" fill="#080808" opacity="0.7"/>
+        <path d="M35 74 L12 62 L35 90 Z" fill="#202010" opacity="0.4"/>
+      </g>
+
+      <!-- Hook 3 -->
+      <path d="M285 198 C285 208, 295 212, 295 222 C295 230, 288 235, 285 235" fill="none" stroke="#3a3530" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Fish 3 (middle) -->
+      <g transform="translate(258, 228)">
+        <ellipse cx="38" cy="108" rx="27" ry="78" fill="url(#fishGrad1)" opacity="0.9"/>
+        <path d="M26 178 L8 205 L38 196 L68 205 L52 178 Z" fill="url(#fishGrad1)" opacity="0.8"/>
+        <path d="M32 70 Q38 66 44 70 M30 81 Q38 77 46 81 M29 92 Q38 88 47 92 M29 103 Q38 99 47 103 M29 114 Q38 110 47 114 M30 125 Q38 121 46 125 M31 136 Q38 132 45 136 M32 147 Q38 143 44 147" stroke="#1a1810" stroke-width="0.5" fill="none" opacity="0.35"/>
+        <circle cx="36" cy="55" r="4" fill="#080808" opacity="0.7"/>
+        <path d="M38 85 L14 72 L38 106 Z" fill="#252515" opacity="0.45"/>
+        <path d="M38 120 L62 108 L38 140 Z" fill="#252515" opacity="0.45"/>
+      </g>
+
+      <!-- Hook 4 -->
+      <path d="M375 158 C375 168, 385 172, 385 182 C385 190, 378 195, 375 195" fill="none" stroke="#3a3530" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Fish 4 -->
+      <g transform="translate(350, 188)">
+        <ellipse cx="33" cy="88" rx="22" ry="62" fill="url(#fishGrad2)" opacity="0.8"/>
+        <path d="M22 144 L7 168 L33 160 L59 168 L46 144 Z" fill="url(#fishGrad2)" opacity="0.7"/>
+        <path d="M27 58 Q33 54 39 58 M25 67 Q33 63 41 67 M25 77 Q33 73 41 77 M25 87 Q33 83 41 87 M25 97 Q33 93 41 97 M26 107 Q33 103 40 107 M27 117 Q33 113 39 117 M28 127 Q33 123 38 127" stroke="#151508" stroke-width="0.5" fill="none" opacity="0.35"/>
+        <circle cx="31" cy="45" r="3" fill="#080808" opacity="0.7"/>
+        <path d="M33 68 L12 58 L33 86 Z" fill="#202010" opacity="0.4"/>
+      </g>
+
+      <!-- Hook 5 -->
+      <path d="M455 208 C455 218, 465 222, 465 232 C465 240, 458 245, 455 245" fill="none" stroke="#3a3530" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Fish 5 -->
+      <g transform="translate(428, 238)">
+        <ellipse cx="35" cy="100" rx="25" ry="72" fill="url(#fishGrad1)" opacity="0.85"/>
+        <path d="M24 165 L8 190 L35 182 L62 190 L48 165 Z" fill="url(#fishGrad1)" opacity="0.75"/>
+        <path d="M30 65 Q35 61 40 65 M28 75 Q35 71 42 75 M27 85 Q35 81 43 85 M27 95 Q35 91 43 95 M27 105 Q35 101 43 105 M28 115 Q35 111 42 115 M29 125 Q35 121 41 125 M30 135 Q35 131 40 135" stroke="#1a1810" stroke-width="0.5" fill="none" opacity="0.35"/>
+        <circle cx="33" cy="50" r="3.5" fill="#080808" opacity="0.7"/>
+        <path d="M35 78 L13 67 L35 98 Z" fill="#252515" opacity="0.4"/>
+      </g>
+
+      <!-- Subtle bottom shadow/reflection -->
+      <ellipse cx="300" cy="730" rx="240" ry="15" fill="#151310" opacity="0.3"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ══ FILMS ══ -->
+<section id="films">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label" style="color:var(--olive);margin-bottom:1rem">Cinema</div>
+      <h2 class="section-title">Featured<br>Films</h2>
+    </div>
+    <span class="section-count">05 Works</span>
+  </div>
+
+  <div class="films-grid">
+
+    <div class="film-card film-1">
+      <div class="film-bg"></div>
+      <div class="film-overlay"></div>
+      <div class="film-info">
+        <div class="film-number">01</div>
+        <h3 class="film-title">Hidaad</h3>
+        <div class="film-meta">Short Film — 2025 — Cinematography</div>
+        <p class="film-synopsis">A story set within a construction site, observing a man negotiating grief while remaining distant from those around him.</p>
+        <a href="https://youtu.be/sL4Pt9a3Iaw" class="film-watch" target="_blank">Watch film</a>
+      </div>
+    </div>
+
+    <div class="film-card film-2">
+      <div class="film-bg"></div>
+      <div class="film-overlay"></div>
+      <div class="film-info">
+        <div class="film-number">02</div>
+        <h3 class="film-title">Paanch Sitare</h3>
+        <div class="film-meta">Documentary- 2025</div>
+        <p class="film-synopsis">A delivery worker trapped in the gig economy confronts a system where human worth is reduced to ratings.</p>
+        <a href="https://youtu.be/G733BAKC7Pk" class="film-watch" target="_blank">Watch film</a>
+      </div>
+    </div>
+
+    <div class="film-card film-3">
+      <div class="film-bg"></div>
+      <div class="film-overlay"></div>
+      <div class="film-info">
+        <div class="film-number">03</div>
+        <h3 class="film-title">Farid Manzil</h3>
+        <div class="film-meta">Documentary — 2025 — Cinematography</div>
+        <p class="film-synopsis">A documentary portrait observing the quiet life within a decaying mansion — its memories, its silences.</p>
+        <a href="https://www.youtube.com/watch?v=I8UjRJshPa8" class="film-watch" target="_blank">Watch film</a>
+      </div>
+    </div>
+
+   <div class="film-card film-4">
+  <div class="film-bg"></div>
+  <div class="film-overlay"></div>
+  <div class="film-info">
+    <div class="film-number">04</div>
+    <h3 class="film-title">Through My Eyes</h3>
+    <div class="film-meta">FTII Diploma — 2024 — 15 min — Screenplay</div>
+    <p class="film-synopsis">
+      In the noise of celebration, a boy's first brush with desire slips into something uneasy.
+    </p>
+    <a href="https://youtu.be/5PNL3BlMc74" class="film-watch" target="_blank">Watch film</a>
+  </div>
+</div>
+
+<div class="film-card film-5">
+  <div class="film-bg"></div>
+  <div class="film-overlay"></div>
+  <div class="film-info">
+    <div class="film-number">05</div>
+    <h3 class="film-title">Perception &amp; Us</h3>
+    <div class="film-meta">Live Performance — FTII — 2025 — Cinematography</div>
+    <p class="film-synopsis">
+      A live performance captured — the fluid boundary between audience and image, seeing and being seen.
+    </p>
+    <a href="https://youtu.be/HVsvpOlEV3s" class="film-watch" target="_blank">Watch film</a>
+  </div>
+</div>
+
+  </div>
+</section>
+
+<!-- ══ SCREENPLAYS ══ -->
+<section id="screenplays">
+  <div class="screenplay-header">
+    <div class="screenplay-title-block">
+      <div class="section-label screenplay-label" style="color:var(--brown-mid)">Written Works</div>
+      <h2 class="section-title">Screen&shy;plays</h2>
+    </div>
+    <span class="section-count" style="color:var(--brown-mid)">02 Scripts</span>
+  </div>
+
+  <div class="screenplay-grid">
+
+    <div class="screenplay-card reveal">
+      <div class="screenplay-number">01</div>
+      <div class="screenplay-name">Machhliyan</div>
+      <div class="screenplay-type">Hindi · Narrative Screenplay · Unproduced</div>
+      <p class="screenplay-synopsis">A young boy clings to a fragile life as his world quietly unravels, trying to make sense of loss before it fully takes shape. A story told through the small rituals of survival — the fish in the river, the cold mornings, the things no one says aloud.</p>
+      <a href="https://drive.google.com/file/d/1WRuIqlx38EvqajpmCVPahg2ovrY4sf-H/view" class="screenplay-link" target="_blank">Read Screenplay</a>
+      &nbsp;&nbsp;
+      <a href="https://drive.google.com/file/d/1P10cILrGxObHR8c-ZcRwDO6npRemGDA0/view" class="screenplay-link" target="_blank">View Pitch Deck</a>
+    </div>
+
+    <div class="screenplay-card reveal" style="transition-delay:0.2s">
+      <div class="screenplay-number">02</div>
+      <div class="screenplay-name">Watchman</div>
+      <div class="screenplay-type">Hindi · Short Screenplay</div>
+      <p class="screenplay-synopsis">In a cramped home, a security guard watches his family unravel over money and dignity, saying nothing as he turns into the silence he lives by. A film about the quiet violence of staying still.</p>
+      <a href="https://drive.google.com/file/d/1rqrhQYKNgpf0KqBewvnbP3ldsy3ksJMD/view" class="screenplay-link" target="_blank">Read Screenplay</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ BOOK ══ -->
+<section id="book">
+  <div class="book-visual">
+    <div class="book-mockup">
+      <div class="book-face">
+        <div class="book-cover-title">
+          मेरे ज़हन का<br>वो आदमी
+        </div>
+        <div class="book-cover-scrawl">◯</div>
+        <div class="book-cover-author">Sudarshan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="book-info">
+    <div class="book-eyebrow">Published Work</div>
+    <h2 class="book-title">Mere Zehen Ka<br>Vo Aadmi</h2>
+    <div class="book-subtitle">Book · Poetry Collection</div>
+    <p class="book-desc">A collection of poems tracing the interior landscapes of memory, longing, and the unnamed figures that populate the mind's theatre. In Urdu-Hindi, the language of the subconscious.</p>
+    <a href="https://www.amazon.in/मेरे-ज़हन-का-वो-आदमी/dp/9370924019/ref=sr_1_1?crid=3DA3EVD0ONPXE&dib=eyJ2IjoiMSJ9.XNT-Xz40Xp5OMQmirB7fgA.KFbpvlDK_AHfspC2sejgnbNpqfOud198EnjbGq799fk&dib_tag=se&keywords=मेरे+ज़हन+का+वो+आदमी&qid=1774124037&sprefix=मेरे+ज़हन+का+वो+आदमी+%2Caps%2C392&sr=8-1" class="book-link" target="_blank">Available on Amazon →</a>
+  </div>
+</section>
+
+<!-- ══ ARTWORK ══ -->
+<section id="artwork">
+  <div class="artwork-header reveal">
+    <div>
+      <div class="section-label" style="color:var(--olive);margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
+        <span style="width:25px;height:1px;background:var(--olive);display:inline-block"></span>Visual Art
+      </div>
+      <h2 class="section-title" style="color:var(--paper)">Beyond<br>the Frame</h2>
+    </div>
+    <a href="https://drive.google.com/file/d/1YLjhru5iCP5aqfU5qUJezYawcP2RexPw/view?usp=sharing" class="artwork-view-all" target="_blank">
+  View All Work
+</a>
+  </div>
+
+  <div class="artwork-gallery">
+
+    <!-- Row 1: 4 tall portrait panels -->
+    <div class="artwork-row artwork-row-1">
+
+    
+      <div class="artwork-item" data-num="01">
+        <img src="/3.jpg" alt="Study in Silence" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">Study in Silence</div>
+          <div class="artwork-label-sub">2024 · Charcoal on Paper</div>
+        </div>
+      </div>
+
+      <div class="artwork-item" data-num="02">
+        <img src="/5.jpg" alt="Inward" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">Inward</div>
+          <div class="artwork-label-sub">2025 · Graphite Study</div>
+        </div>
+      </div>
+
+    </div><!-- /row-1 -->
+
+    <!-- Row 2: 6 panels — 2 wider + 4 narrower -->
+    <div class="artwork-row artwork-row-2">
+
+
+      <div class="artwork-item" data-num="03">
+        <img src="/7.jpg" alt="The String and the Silence" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">The String and the Silence</div>
+          <div class="artwork-label-sub">2025 · Ink on Paper</div>
+        </div>
+      </div>
+
+      <div class="artwork-item" data-num="04">
+        <img src="/8.jpg" alt="The Watcher" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">The Watcher</div>
+          <div class="artwork-label-sub">2025 · Oil Study</div>
+        </div>
+      </div>
+
+    
+
+      <div class="artwork-item" data-num="05">
+        <img src="/10.jpg" alt="Man with Pipe" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">Man with Pipe</div>
+          <div class="artwork-label-sub">2026 · Oil Study</div>
+        </div>
+      </div>
+
+
+    </div><!-- /row-2 -->
+
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="about-image">
+    <div class="about-portrait"></div>
+  </div>
+  <div class="about-content">
+    <h2 class="about-name">Sudarshan</h2>
+    <div class="about-tag">Filmmaker · Visual Artist</div>
+    <p class="about-bio">
+      Trained at FTII, I try to keep my stories away from my <em>own shadow</em>, allowing them to reach the audience in their purest form —<br><br>
+      where, for a moment, the presence of the maker disappears.
+    </p>
+    <div class="about-details">
+      <div class="about-detail-item">
+        <div class="detail-label">Training</div>
+        <div class="detail-value">Film and Television Institute of India, Pune</div>
+      </div>
+      <div class="about-detail-item">
+        <div class="detail-label">Disciplines</div>
+        <div class="detail-value">Directing · Cinematography<br>Screenwriting · Visual Art</div>
+      </div>
+      <div class="about-detail-item">
+        <div class="detail-label">Based in</div>
+        <div class="detail-value">Goregaon West, Mumbai</div>
+      </div>
+      <div class="about-detail-item">
+        <div class="detail-label">Available for</div>
+        <div class="detail-value">Films · Documentaries<br>Collaborative Projects</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="contact-year">2025</div>
+
+  <div class="contact-label">Get in touch</div>
+
+  <h2 class="contact-title">Let's<br>Collaborate</h2>
+  <p class="contact-subtitle">Available for films, documentaries, and collaborative work across India and beyond.</p>
+
+  <div class="contact-info">
+    <div class="contact-item">
+      <div class="contact-item-label">Email</div>
+      <div class="contact-item-value"><a href="mailto:kagzikalam@gmail.com">kagzikalam@gmail.com</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label">Instagram</div>
+      <div class="contact-item-value"><a href="#">@ul.jalool</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label">Phone</div>
+      <div class="contact-item-value"><a href="tel:+918949269997">+91 89492 69997</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label">Location</div>
+      <div class="contact-item-value">Mumbai, India</div>
+    </div>
+  </div>
+
+  <form class="contact-form" onsubmit="return false;">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" class="form-input" placeholder="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" placeholder="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project / Inquiry</label>
+      <textarea class="form-textarea"></textarea>
+    </div>
+    <button type="submit" class="form-submit">Send Message</button>
+  </form>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-name">Sudarshan</div>
+  <div class="footer-right">FTII Graduate · Mumbai · © 2025</div>
+</footer>
+
+<script>
+// Loader
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 1800);
+});
+
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+function animateCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('a, button, .film-card, .artwork-item').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('expanded'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('expanded'));
+});
+
+// Intersection observer for reveal animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .philosophy-block, .screenplay-card').forEach(el => {
+  observer.observe(el);
+});
+
+// Subtle parallax on hero
+const hero = document.getElementById('hero');
+const heroBg = document.querySelector('.hero-portrait-art');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  if (heroBg && scrolled < window.innerHeight) {
+    heroBg.style.transform = `translateY(${scrolled * 0.25}px)`;
+  }
+});
+
+// Nav transparency based on scroll
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 80) {
+    nav.style.background = 'rgba(26,24,20,0.85)';
+    nav.style.backdropFilter = 'blur(12px)';
+    nav.style.padding = '1.2rem 4rem';
+    nav.style.transition = 'all 0.4s ease';
+  } else {
+    nav.style.background = 'transparent';
+    nav.style.backdropFilter = 'none';
+    nav.style.padding = '2rem 4rem';
+  }
+});
+</script>
+</body>
+</html>
