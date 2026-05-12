@@ -39,7 +39,7 @@ body {
   overflow-x: hidden;
   cursor: none;
 }
-
+a, button { cursor: none; pointer-events: auto; }
 /* Custom cursor */
 .cursor {
   position: fixed;
@@ -238,7 +238,7 @@ nav {
 
   object-fit: contain;
 
-  z-index: 2;
+  z-index: 1;
 
 
   opacity: 0.9;
@@ -413,7 +413,7 @@ margin-right: 2rem;
 
 .philosophy-heading {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 400;
   color: var(--brown-light);
   letter-spacing: 0.05em;
@@ -421,7 +421,7 @@ margin-right: 2rem;
   font-style: italic;
 }
 .philosophy-text-body {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 2;
   color: var(--olive-pale);
   font-weight: 300;
@@ -954,11 +954,8 @@ min-height: 420px;
 
 /* Row 2 widths — 6 panels */
 .artwork-row-2 .artwork-item:nth-child(1) { flex: 1.6; }   /* Two Men — wide */
-.artwork-row-2 .artwork-item:nth-child(2) { flex: 1.6; }   /* Sitar — wide */
-.artwork-row-2 .artwork-item:nth-child(3) { flex: 0.75; }  /* Inward — narrow CENTER */
-.artwork-row-2 .artwork-item:nth-child(4) { flex: 0.85; }  /* The Watcher */
-.artwork-row-2 .artwork-item:nth-child(5) { flex: 1; }     /* Man with Pipe */
-.artwork-row-2 .artwork-item:nth-child(6) { flex: 1; }     /* Perception Inverted */
+.artwork-row-2 .artwork-item:nth-child(2) { flex: 0.75; }  /* Sitar — narrow */
+.artwork-row-2 .artwork-item:nth-child(3) { flex: 1.6; }   /* Inward — wide */
 /* Image fills the cell perfectly */
 .artwork-item img {
   position: absolute;
@@ -1080,6 +1077,19 @@ min-height: 420px;
     radial-gradient(ellipse 70% 80% at 30% 70%, #2a1e10 0%, transparent 55%),
     linear-gradient(160deg, #2a1f12 0%, #1a1208 40%, #0d0a06 100%);
   transition: transform 0.8s ease;
+}
+.about-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: saturate(0.88) contrast(1.05) brightness(0.92);
+  transition: transform 0.8s ease;
+  display: block;
+}
+
+.about-image:hover .about-portrait-img {
+  transform: scale(1.02);
 }
 .about-portrait::before {
   content: '';
@@ -1907,13 +1917,19 @@ footer {
 
 
       <div class="artwork-item" data-num="03">
-        <img src="/7.jpg" alt="The String and the Silence" loading="lazy">
+        <img src="4.jpg" alt="The String and the Silence" loading="lazy">
         <div class="artwork-label">
           <div class="artwork-label-text">The String and the Silence</div>
           <div class="artwork-label-sub">2025 · Ink on Paper</div>
         </div>
       </div>
-
+<div class="artwork-item" data-num="05">
+        <img src="/10.jpg" alt="Man with Pipe" loading="lazy">
+        <div class="artwork-label">
+          <div class="artwork-label-text">Man with Pipe</div>
+          <div class="artwork-label-sub">2026 · Oil Study</div>
+        </div>
+      </div>
       <div class="artwork-item" data-num="04">
         <img src="/8.jpg" alt="The Watcher" loading="lazy">
         <div class="artwork-label">
@@ -1924,13 +1940,7 @@ footer {
 
     
 
-      <div class="artwork-item" data-num="05">
-        <img src="/10.jpg" alt="Man with Pipe" loading="lazy">
-        <div class="artwork-label">
-          <div class="artwork-label-text">Man with Pipe</div>
-          <div class="artwork-label-sub">2026 · Oil Study</div>
-        </div>
-      </div>
+      
 
 
     </div><!-- /row-2 -->
@@ -1941,8 +1951,8 @@ footer {
 <!-- ══ ABOUT ══ -->
 <section id="about">
   <div class="about-image">
-    <div class="about-portrait"></div>
-  </div>
+  <img src="about image.jpeg" alt="Sudarshan" class="about-portrait-img">
+</div>
   <div class="about-content">
     <h2 class="about-name">Sudarshan</h2>
     <div class="about-tag">Filmmaker · Visual Artist</div>
@@ -1973,7 +1983,6 @@ footer {
 
 <!-- ══ CONTACT ══ -->
 <section id="contact">
-  <div class="contact-year">2025</div>
 
   <div class="contact-label">Get in touch</div>
 
@@ -1987,7 +1996,7 @@ footer {
     </div>
     <div class="contact-item">
       <div class="contact-item-label">Instagram</div>
-      <div class="contact-item-value"><a href="#">@ul.jalool</a></div>
+      <div class="contact-item-value"><a href="https://www.instagram.com/ul.jalool/" target="_blank">@ul.jalool</a></div>
     </div>
     <div class="contact-item">
       <div class="contact-item-label">Phone</div>
