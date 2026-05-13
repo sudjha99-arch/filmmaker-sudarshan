@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beyond the Frame — Sudarshan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --olive: #7a8069;
+  --olive-light: #9aa08a;
+  --olive-pale: #b5b9a3;
+  --beige: #d9d3c0;
+  --beige-light: #ece8dc;
+  --paper: #f0ebe0;
+  --paper-warm: #ede7d8;
+  --charcoal: #1a1814;
+  --charcoal-mid: #2e2b26;
+  --brown: #4a2e0e;
+  --brown-mid: #6b4220;
+  --brown-light: #8c5a2e;
+  --gap: 16px;
+  --transition: 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: #0e0c09;
+  color: var(--beige);
+  overflow-x: hidden;
+  cursor: none;
+  min-height: 100vh;
+}
+a, button { cursor: none; pointer-events: auto; }
+
+/* ── Grain overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9990;
+  animation: grain 8s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(3%,1%)}
+  30%{transform:translate(-1%,4%)} 40%{transform:translate(4%,-2%)} 50%{transform:translate(-3%,2%)}
+  60%{transform:translate(2%,3%)} 70%{transform:translate(-4%,-1%)} 80%{transform:translate(1%,-4%)} 90%{transform:translate(3%,2%)}
+}
+
+/* ── Custom cursor ── */
+.cursor {
+  position: fixed; width: 8px; height: 8px;
+  background: var(--beige-light); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  position: fixed; width: 32px; height: 32px;
+  border: 1px solid rgba(209,203,192,0.4); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), width 0.3s ease, height 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring.expanded { width: 60px; height: 60px; border-color: rgba(209,203,192,0.2); }
+
+/* ── Nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.8rem 5rem;
+  transition: background 0.5s ease, padding 0.4s ease;
+}
+nav.scrolled {
+  background: rgba(14,12,9,0.92);
+  backdrop-filter: blur(14px);
+  padding: 1.2rem 5rem;
+}
+.nav-back {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--olive-pale); text-decoration: none;
+  transition: color 0.3s ease, gap 0.3s ease;
+}
+.nav-back::before { content: '←'; font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+.nav-back:hover { color: var(--beige-light); gap: 1.2rem; }
+.nav-logo {
+  font-family: 'Cormorant SC', serif; font-size: 1rem; font-weight: 400;
+  letter-spacing: 0.22em; color: var(--beige-light); text-decoration: none;
+}
+.nav-count {
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--olive);
+}
+
+/* ── Hero Header ── */
+.page-header {
+  padding: 14rem 5rem 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.page-header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 70% at 50% 60%, rgba(74,46,14,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.header-label {
+  font-size: 0.58rem; letter-spacing: 0.45em; text-transform: uppercase;
+  color: var(--olive); margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1.2rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.header-label::before { content: ''; width: 28px; height: 1px; background: var(--olive); display: inline-block; }
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300;
+  color: var(--paper); letter-spacing: 0.04em; line-height: 0.9;
+  margin-bottom: 0.5rem;
+  opacity: 0; animation: fadeUp 0.9s ease 0.35s forwards;
+}
+.page-title em { font-style: italic; color: var(--olive-pale); }
+.page-subtitle {
+  font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--olive-light); margin-top: 1.8rem; margin-bottom: 0;
+  opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.header-desc {
+  font-size: 0.85rem; line-height: 2; color: var(--olive-pale);
+  max-width: 420px; margin-top: 1.8rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Toggle ── */
+.toggle-wrapper {
+  display: flex; justify-content: center; align-items: center;
+  padding: 3rem 0 4.5rem;
+  position: sticky; top: 80px; z-index: 100;
+}
+.toggle-track {
+  position: relative;
+  display: flex; align-items: center;
+  background: rgba(26,24,20,0.6);
+  border: 1px solid rgba(122,128,105,0.22);
+  border-radius: 60px;
+  padding: 6px;
+  width: 380px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+.toggle-pill {
+  position: absolute;
+  top: 6px; left: 6px;
+  width: calc(50% - 6px);
+  height: calc(100% - 12px);
+  border-radius: 54px;
+  background: linear-gradient(135deg, rgba(122,128,105,0.35) 0%, rgba(74,46,14,0.25) 100%);
+  border: 1px solid rgba(122,128,105,0.35);
+  transition: transform 0.55s cubic-bezier(0.68,-0.2,0.32,1.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.toggle-track.solid-active .toggle-pill { transform: translateX(100%); }
+.toggle-btn {
+  position: relative; z-index: 2;
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  font-family: 'Jost', sans-serif; font-size: 0.65rem; font-weight: 300;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--olive-pale); background: none; border: none;
+  transition: color 0.4s ease;
+  white-space: nowrap;
+}
+.toggle-btn.active { color: var(--beige-light); }
+.toggle-btn .btn-icon {
+  width: 14px; height: 14px; border-radius: 2px;
+  background: currentColor; opacity: 0.5;
+  transition: opacity 0.4s ease;
+}
+.toggle-btn.active .btn-icon { opacity: 1; }
+.toggle-btn .btn-icon.scribble-icon {
+  background: none; border: 1.5px solid currentColor; border-radius: 1px; position: relative;
+}
+.toggle-btn .btn-icon.scribble-icon::after {
+  content: ''; position: absolute; inset: 2px; background: currentColor; border-radius: 50%; opacity: 0.5;
+}
+.toggle-divider {
+  width: 1px; height: 20px; background: rgba(122,128,105,0.2); flex-shrink: 0; position: relative; z-index: 2;
+}
+
+/* ── Section Panels ── */
+.section-panel { display: none; }
+.section-panel.active { display: block; }
+
+/* ── Section intro strip ── */
+.section-intro {
+  padding: 0 5rem 3rem;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.section-intro-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 300;
+  color: var(--paper); letter-spacing: 0.03em;
+}
+.section-intro-meta {
+  font-size: 0.6rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive); text-align: right;
+}
+
+/* ── Pinterest-Style Masonry Grid ── */
+.gallery-grid {
+  column-count: 3;
+  column-gap: var(--gap);
+  padding: 0 5rem;
+  max-width: 100%;
+}
+
+.g-item {
+  break-inside: avoid;
+  margin-bottom: var(--gap);
+  position: relative;
+  overflow: hidden;
+  background: #111009;
+  border-radius: 12px;
+  cursor: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.g-item.revealed { opacity: 1; transform: translateY(0); }
+
+/* ── Positional shuffle: cards glide to swapped locations ── */
+.g-item.shuffling-out {
+  transition: opacity 0.55s cubic-bezier(0.25,0.46,0.45,0.94),
+              transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94) !important;
+  opacity: 0;
+}
+.g-item.shuffling-move {
+  transition: transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94) !important;
+}
+
+.g-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 6px;
+  filter: saturate(0.82) brightness(0.85);
+  transition: transform 1s cubic-bezier(0.25,0.46,0.45,0.94), filter 1s ease;
+}
+
+.g-item:hover img {
+  transform: scale(1.04);
+  filter: saturate(0.5) brightness(0.45);
+}
+
+.g-item-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(6,4,2,0.97) 0%, rgba(6,4,2,0.4) 45%, transparent 100%);
+  opacity: 0; transition: opacity 0.5s ease;
+}
+.g-item:hover .g-item-overlay { opacity: 1; }
+
+.g-item-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 2rem 1.2rem 1.2rem;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  z-index: 2;
+}
+.g-item:hover .g-item-label { opacity: 1; transform: translateY(0); }
+
+.g-item-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 300;
+  color: var(--paper); font-style: italic; line-height: 1.25;
+  margin-bottom: 0.3rem;
+}
+.g-item-sub {
+  font-size: 0.54rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive-light);
+}
+.g-item-num {
+  position: absolute; top: 1rem; left: 1.2rem;
+  font-size: 0.5rem; letter-spacing: 0.3em; color: var(--olive-light);
+  font-family: 'Jost', sans-serif; font-weight: 300;
+  opacity: 0; transition: opacity 0.4s ease; z-index: 3;
+}
+.g-item:hover .g-item-num { opacity: 1; }
+
+/* ── Footer strip ── */
+.page-footer {
+  border-top: 1px solid rgba(122,128,105,0.1);
+  padding: 2.5rem 5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6rem;
+}
+.footer-name {
+  font-family: 'Cormorant SC', serif; font-size: 0.8rem;
+  letter-spacing: 0.22em; color: var(--olive);
+}
+.footer-back {
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--olive); text-decoration: none;
+  transition: color 0.3s ease, gap 0.3s ease;
+}
+.footer-back:hover { color: var(--beige-light); gap: 1rem; }
+
+/* ══ LIGHTBOX ══ */
+#lightbox {
+  position: fixed; inset: 0; z-index: 9995;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8,6,3,0);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease, background 0.5s ease;
+  flex-direction: column; padding: 3.5rem 2rem 0;
+}
+#lightbox.open {
+  opacity: 1; pointer-events: all;
+  background: rgba(8,6,3,0.97);
+}
+.lightbox-inner {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  max-width: 88vw; max-height: 80vh;
+  transform: scale(0.93) translateY(18px);
+  transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+#lightbox.open .lightbox-inner { transform: scale(1) translateY(0); }
+.lightbox-img {
+  display: block; max-width: 100%; max-height: 72vh;
+  object-fit: contain; box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  transition: opacity 0.2s ease;
+}
+.lightbox-caption {
+  width: 100%; padding: 1.4rem 0 0;
+  display: flex; align-items: baseline;
+  justify-content: space-between; gap: 2rem;
+}
+.lightbox-caption-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 300;
+  color: var(--paper); font-style: italic; line-height: 1.2;
+}
+.lightbox-caption-sub {
+  font-size: 0.57rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive-light); white-space: nowrap; flex-shrink: 0;
+}
+.lightbox-close {
+  position: fixed; top: 1.8rem; right: 2.5rem;
+  background: transparent; border: 1px solid rgba(122,128,105,0.28);
+  color: var(--olive-pale); font-family: 'Jost', sans-serif;
+  font-size: 0.57rem; letter-spacing: 0.3em; text-transform: uppercase;
+  padding: 0.6rem 1.2rem; cursor: none;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  z-index: 9996;
+}
+.lightbox-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none;
+  color: rgba(209,203,192,0.28); font-size: 1.9rem; padding: 1rem 1.6rem;
+  cursor: none; transition: color 0.3s ease; z-index: 9996;
+}
+.lightbox-nav.prev { left: 0.8rem; }
+.lightbox-nav.next { right: 0.8rem; }
+.lightbox-counter {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.54rem; letter-spacing: 0.36em; text-transform: uppercase; color: var(--olive);
+}
+
+/* ══ MOBILE ══ */
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  a, button { cursor: auto; }
+  .cursor, .cursor-ring { display: none !important; }
+  nav { padding: 1.2rem 1.5rem; }
+  nav.scrolled { padding: 0.9rem 1.5rem; }
+  .page-header { padding: 9rem 1.5rem 3rem; }
+  .toggle-wrapper { padding: 2rem 0 3rem; top: 60px; }
+  .section-intro { padding: 0 1.5rem 2.5rem; flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+  .gallery-grid {         column-count: 2;
+        column-gap: 13px;
+        padding: 0px 25px; }
+  .g-item { margin-bottom: 8px; border-radius: 8px; }
+  .g-item-label { display: none; }
+  .lightbox-img { max-height: 64vh; }
+  .lightbox-close { top: 1rem; right: 1rem; }
+  .page-footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="mainNav">
+  <a href="index.html" class="nav-back">Portfolio</a>
+</nav>
+
+<header class="page-header">
+  <div class="header-label">Visual Art</div>
+  <h1 class="page-title">Beyond<br><em>the Frame</em></h1>
+  <div class="page-subtitle">A visual archive · Two bodies of work</div>
+  <p class="header-desc">Works on paper, canvas, and screen — exploring the image beyond cinema.</p>
+</header>
+
+<div class="toggle-wrapper">
+  <div class="toggle-track" id="toggleTrack">
+    <div class="toggle-pill" id="togglePill"></div>
+    <button class="toggle-btn active" id="btnScribble" data-section="scribble">
+      <span class="btn-icon scribble-icon"></span>Scribble
+    </button>
+    <div class="toggle-divider"></div>
+    <button class="toggle-btn" id="btnSolid" data-section="solid">
+      <span class="btn-icon"></span>Solid
+    </button>
+  </div>
+</div>
+
+<!-- ── Scribble Section ── -->
+<div class="section-panel active" id="panel-scribble">
+  <div class="section-intro">
+    <h2 class="section-intro-title">Scribble</h2>
+    <div class="section-intro-meta">Line · Gesture </div>
+  </div>
+  <div class="gallery-grid" id="grid-scribble"></div>
+</div>
+
+<!-- ── Solid Section ── -->
+<div class="section-panel" id="panel-solid">
+  <div class="section-intro">
+    <h2 class="section-intro-title">Solid</h2>
+    <div class="section-intro-meta">Oil · Ink </div>
+  </div>
+  <div class="gallery-grid" id="grid-solid"></div>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-name">Sudarshan</div>
+  <a href="index.html" class="footer-back">Return to Portfolio</a>
+</footer>
+
+<div id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕ Close</button>
+  <button class="lightbox-nav prev" id="lightboxPrev">←</button>
+  <button class="lightbox-nav next" id="lightboxNext">→</button>
+  <div class="lightbox-inner">
+    <img class="lightbox-img" id="lightboxImg" src="">
+    <div class="lightbox-caption">
+      <div class="lightbox-caption-title" id="lightboxTitle"></div>
+      <div class="lightbox-caption-sub" id="lightboxSub"></div>
+    </div>
+  </div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const scribbleGrid = document.getElementById('grid-scribble');
+  const solidGrid = document.getElementById('grid-solid');
+
+  // 1. Generate 320 Scribble items
+  let scribbleHTML = '';
+  for (let i = 1; i <= 320; i++) {
+    scribbleHTML += `
+    <div class="g-item" data-title="Scribble ${i}" data-sub="2025 · Sketch">
+      <span class="g-item-num">${i}</span>
+      <img src="./scribble/scribble${i}.webp" loading="lazy" alt="Scribble ${i}">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Scribble ${i}</div>
+        <div class="g-item-sub">2025 · Sketch</div>
+      </div>
+    </div>`;
+  }
+  scribbleGrid.innerHTML = scribbleHTML;
+
+  // 2. Generate 107 Solid items
+  let solidHTML = '';
+  for (let j = 1; j <= 107; j++) {
+    solidHTML += `
+    <div class="g-item" data-title="Solid ${j}" data-sub="2025 · Canvas">
+      <span class="g-item-num">${j}</span>
+      <img src="./solid/solid${j}.webp" loading="lazy" alt="Solid ${j}">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Solid ${j}</div>
+        <div class="g-item-sub">2025 · Canvas</div>
+      </div>
+    </div>`;
+  }
+  solidGrid.innerHTML = solidHTML;
+
+  /* ── Intersection observer ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.g-item').forEach(el => {
+    observer.observe(el);
+    el.addEventListener('click', () => {
+      const items = getActiveItems();
+      openLightbox(items, items.indexOf(el));
+    });
+  });
+
+  /* ── Lightbox Logic ── */
+  const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lightboxImg'),
+        lbTitle = document.getElementById('lightboxTitle'), lbSub = document.getElementById('lightboxSub'),
+        lbCounter = document.getElementById('lightboxCounter');
+  let lbItems = [], lbIndex = 0;
+
+  function getActiveItems() {
+    return Array.from(document.querySelector('.section-panel.active').querySelectorAll('.g-item'));
+  }
+
+  function openLightbox(items, index) {
+    lbItems = items; lbIndex = index; showSlide();
+    lb.classList.add('open'); document.body.style.overflow = 'hidden';
+  }
+
+  function showSlide() {
+    const el = lbItems[lbIndex], img = el.querySelector('img');
+    lbImg.src = img.src; lbTitle.textContent = el.dataset.title;
+    lbSub.textContent = el.dataset.sub;
+    lbCounter.textContent = `${lbIndex + 1} / ${lbItems.length}`;
+  }
+
+  function navigate(dir) {
+    lbIndex = (lbIndex + dir + lbItems.length) % lbItems.length;
+    lbImg.style.opacity = '0';
+    setTimeout(() => { showSlide(); lbImg.style.opacity = '1'; }, 150);
+  }
+
+  document.getElementById('lightboxClose').onclick = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
+  document.getElementById('lightboxPrev').onclick = () => navigate(-1);
+  document.getElementById('lightboxNext').onclick = () => navigate(1);
+
+  /* ══════════════════════════════════════════════════
+     FEATURE 1 — Section persistence via localStorage
+  ══════════════════════════════════════════════════ */
+  const STORAGE_KEY = 'btf_active_section';
+
+  const track = document.getElementById('toggleTrack'),
+        btnScribble = document.getElementById('btnScribble'),
+        btnSolid    = document.getElementById('btnSolid');
+
+  function switchSection(to) {
+    track.classList.toggle('solid-active', to === 'solid');
+    btnScribble.classList.toggle('active', to === 'scribble');
+    btnSolid.classList.toggle('active', to === 'solid');
+    document.querySelectorAll('.section-panel').forEach(p =>
+      p.classList.toggle('active', p.id === 'panel-' + to)
+    );
+    try { localStorage.setItem(STORAGE_KEY, to); } catch(e) {}
+  }
+
+  btnScribble.onclick = () => switchSection('scribble');
+  btnSolid.onclick    = () => switchSection('solid');
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'solid' || saved === 'scribble') switchSection(saved);
+  } catch(e) {}
+
+  /* ══════════════════════════════════════════════════
+     FEATURE 2 — Smooth positional shuffle every 10s
+
+     Strategy: pick a small batch of revealed cards,
+     measure their actual screen positions, then swap
+     their DOM content (img src + metadata) while
+     playing a CSS transform that makes each card
+     *appear* to physically fly to its partner's spot.
+
+     No opacity flicker. Cards stay in the masonry
+     column flow — only their inner content trades
+     places, animated by a translate that covers the
+     visual distance between the two positions.
+
+     Pauses when lightbox is open.
+  ══════════════════════════════════════════════════ */
+
+  let shuffleBusy = false;
+
+  function shuffleGrid(grid) {
+    if (lb.classList.contains('open')) return;
+    if (shuffleBusy) return;
+
+    const items = Array.from(grid.querySelectorAll('.g-item.revealed'));
+    if (items.length < 4) return;
+
+    // Pick 4–8 random unique cards to swap among
+    const count  = Math.min(items.length, 4 + Math.floor(Math.random() * 5));
+    const pool   = [...items].sort(() => Math.random() - 0.5).slice(0, count);
+
+    // Ensure count is even for clean pair swaps
+    const pairs  = pool.slice(0, pool.length % 2 === 0 ? pool.length : pool.length - 1);
+    if (pairs.length < 2) return;
+
+    shuffleBusy = true;
+
+    // Snapshot rects BEFORE any DOM change
+    const rects = pairs.map(el => el.getBoundingClientRect());
+
+    // Build content snapshots
+    function snap(el) {
+      const img = el.querySelector('img');
+      return {
+        src:        img.src,
+        alt:        img.alt,
+        title:      el.dataset.title,
+        sub:        el.dataset.sub,
+        num:        el.querySelector('.g-item-num').textContent,
+        labelTitle: el.querySelector('.g-item-title').textContent,
+        labelSub:   el.querySelector('.g-item-sub').textContent,
+      };
+    }
+    const snaps = pairs.map(snap);
+
+    // Shuffle snaps array so content moves to different cards
+    const shuffledSnaps = [...snaps];
+    for (let i = shuffledSnaps.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledSnaps[i], shuffledSnaps[j]] = [shuffledSnaps[j], shuffledSnaps[i]];
+    }
+
+    // Staggered animation: each card glides to where its new content came from
+    const DURATION = 820; // ms — matches CSS transition
+
+    pairs.forEach((el, idx) => {
+      // Find where this card's new content originated
+      const newContentOriginIdx = snaps.findIndex(s => s.src === shuffledSnaps[idx].src);
+      const originRect = rects[newContentOriginIdx];
+      const myRect     = rects[idx];
+
+      // Vector: card needs to appear to travel FROM origin TO here
+      // We achieve this by starting the card translated TO origin, then transitioning to 0
+      const dx = originRect.left - myRect.left;
+      const dy = originRect.top  - myRect.top;
+
+      const delay = idx * 60; // 60ms ripple stagger
+
+      setTimeout(() => {
+        // 1. Swap content immediately (card is still at natural position)
+        const s = shuffledSnaps[idx];
+        const img = el.querySelector('img');
+        img.src = s.src;
+        img.alt = s.alt;
+        el.dataset.title = s.title;
+        el.dataset.sub   = s.sub;
+        el.querySelector('.g-item-num').textContent        = s.num;
+        el.querySelector('.g-item-title').textContent      = s.labelTitle;
+        el.querySelector('.g-item-sub').textContent        = s.labelSub;
+
+        // 2. Instantly offset the card to the origin position (no transition)
+        el.style.transition = 'none';
+        el.style.transform  = `translate(${dx}px, ${dy}px)`;
+
+        // 3. Force reflow so the offset is rendered before we animate
+        void el.offsetWidth;
+
+        // 4. Animate back to natural position — this is the visible "glide"
+        el.style.transition = `transform ${DURATION}ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                                opacity 0.7s ease`;
+        el.style.transform  = 'translate(0, 0)';
+
+      }, delay);
+    });
+
+    // Release busy flag after all animations finish
+    const totalTime = DURATION + (pairs.length - 1) * 60 + 100;
+    setTimeout(() => {
+      // Clean up inline styles
+      pairs.forEach(el => {
+        el.style.transition = '';
+        el.style.transform  = '';
+      });
+      shuffleBusy = false;
+    }, totalTime);
+  }
+
+  // Run shuffle on the active grid every 10 seconds
+  setInterval(() => {
+    const activePanel = document.querySelector('.section-panel.active');
+    if (activePanel) {
+      const grid = activePanel.querySelector('.gallery-grid');
+      if (grid) shuffleGrid(grid);
+    }
+  }, 5000);
+
+});
+
+/* ── Custom cursor ── */
+const cursor = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+(function anim() { rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(anim); })();
+window.addEventListener('scroll', () => document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60));
+</script>
+</body>
+</html>
