@@ -4305,36 +4305,26 @@ footer {
 
 
 
-  <form class="contact-form" method="POST" data-netlify="true">
+ <form class="contact-form" name="contact" method="POST" data-netlify="true">
+  <input type="hidden" name="form-name" value="contact">
 
-    <div class="form-group">
+  <div class="form-group">
+    <label class="form-label" for="name">Name</label>
+    <input type="text" id="name" name="name" class="form-input" required>
+  </div>
 
-      <label class="form-label">Name</label>
+  <div class="form-group">
+    <label class="form-label" for="email">Email</label>
+    <input type="email" id="email" name="email" class="form-input" required>
+  </div>
 
-      <input type="text" class="form-input" required >
+  <div class="form-group">
+    <label class="form-label" for="message">Message</label>
+    <textarea id="message" name="message" class="form-textarea" required></textarea>
+  </div>
 
-    </div>
-
-    <div class="form-group">
-
-      <label class="form-label">Email</label>
-
-      <input type="email" class="form-input" required>
-
-    </div>
-
-    <div class="form-group">
-
-      <label class="form-label">Project / Inquiry</label>
-
-      <textarea class="form-textarea" required></textarea>
-
-    </div>
-
-    <button type="submit" class="form-submit">Send Message</button>
-
-  </form>
-
+  <button type="submit" class="form-submit">Send Message</button>
+</form>
 </section>
 
 
@@ -4497,7 +4487,7 @@ if (!isMobile()) {
 
     const scrolled = window.scrollY;
 
-    if (heroBg && scrolled < window.innerHeight) {
+    if (heroBgf && scrolled < window.innerHeight) {
 
       heroBg.style.transform = `translateY(${scrolled * 0.25}px)`;
 
