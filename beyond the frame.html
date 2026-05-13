@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beyond the Frame — Sudarshan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --olive: #7a8069;
+  --olive-light: #9aa08a;
+  --olive-pale: #b5b9a3;
+  --beige: #d9d3c0;
+  --beige-light: #ece8dc;
+  --paper: #f0ebe0;
+  --paper-warm: #ede7d8;
+  --charcoal: #1a1814;
+  --charcoal-mid: #2e2b26;
+  --brown: #4a2e0e;
+  --brown-mid: #6b4220;
+  --brown-light: #8c5a2e;
+  --gap: 16px;
+  --transition: 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: #0e0c09;
+  color: var(--beige);
+  overflow-x: hidden;
+  cursor: none;
+  min-height: 100vh;
+}
+a, button { cursor: none; pointer-events: auto; }
+
+/* ── Grain overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9990;
+  animation: grain 8s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(3%,1%)}
+  30%{transform:translate(-1%,4%)} 40%{transform:translate(4%,-2%)} 50%{transform:translate(-3%,2%)}
+  60%{transform:translate(2%,3%)} 70%{transform:translate(-4%,-1%)} 80%{transform:translate(1%,-4%)} 90%{transform:translate(3%,2%)}
+}
+
+/* ── Custom cursor ── */
+.cursor {
+  position: fixed; width: 8px; height: 8px;
+  background: var(--beige-light); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  position: fixed; width: 32px; height: 32px;
+  border: 1px solid rgba(209,203,192,0.4); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), width 0.3s ease, height 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring.expanded { width: 60px; height: 60px; border-color: rgba(209,203,192,0.2); }
+
+/* ── Nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.8rem 5rem;
+  transition: background 0.5s ease, padding 0.4s ease;
+}
+nav.scrolled {
+  background: rgba(14,12,9,0.92);
+  backdrop-filter: blur(14px);
+  padding: 1.2rem 5rem;
+}
+.nav-back {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--olive-pale); text-decoration: none;
+  transition: color 0.3s ease, gap 0.3s ease;
+}
+.nav-back::before { content: '←'; font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+.nav-back:hover { color: var(--beige-light); gap: 1.2rem; }
+.nav-logo {
+  font-family: 'Cormorant SC', serif; font-size: 1rem; font-weight: 400;
+  letter-spacing: 0.22em; color: var(--beige-light); text-decoration: none;
+}
+.nav-count {
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--olive);
+}
+
+/* ── Hero Header ── */
+.page-header {
+  padding: 14rem 5rem 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.page-header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 70% at 50% 60%, rgba(74,46,14,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.header-label {
+  font-size: 0.58rem; letter-spacing: 0.45em; text-transform: uppercase;
+  color: var(--olive); margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1.2rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.header-label::before { content: ''; width: 28px; height: 1px; background: var(--olive); display: inline-block; }
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300;
+  color: var(--paper); letter-spacing: 0.04em; line-height: 0.9;
+  margin-bottom: 0.5rem;
+  opacity: 0; animation: fadeUp 0.9s ease 0.35s forwards;
+}
+.page-title em { font-style: italic; color: var(--olive-pale); }
+.page-subtitle {
+  font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--olive-light); margin-top: 1.8rem; margin-bottom: 0;
+  opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.header-desc {
+  font-size: 0.85rem; line-height: 2; color: var(--olive-pale);
+  max-width: 420px; margin-top: 1.8rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Toggle ── */
+.toggle-wrapper {
+  display: flex; justify-content: center; align-items: center;
+  padding: 3rem 0 4.5rem;
+  position: sticky; top: 80px; z-index: 100;
+}
+.toggle-track {
+  position: relative;
+  display: flex; align-items: center;
+  background: rgba(26,24,20,0.6);
+  border: 1px solid rgba(122,128,105,0.22);
+  border-radius: 60px;
+  padding: 6px;
+  width: 380px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+.toggle-pill {
+  position: absolute;
+  top: 6px; left: 6px;
+  width: calc(50% - 6px);
+  height: calc(100% - 12px);
+  border-radius: 54px;
+  background: linear-gradient(135deg, rgba(122,128,105,0.35) 0%, rgba(74,46,14,0.25) 100%);
+  border: 1px solid rgba(122,128,105,0.35);
+  transition: transform 0.55s cubic-bezier(0.68,-0.2,0.32,1.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.toggle-track.solid-active .toggle-pill { transform: translateX(100%); }
+.toggle-btn {
+  position: relative; z-index: 2;
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  font-family: 'Jost', sans-serif; font-size: 0.65rem; font-weight: 300;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--olive-pale); background: none; border: none;
+  transition: color 0.4s ease;
+  white-space: nowrap;
+}
+.toggle-btn.active { color: var(--beige-light); }
+.toggle-btn .btn-icon {
+  width: 14px; height: 14px; border-radius: 2px;
+  background: currentColor; opacity: 0.5;
+  transition: opacity 0.4s ease;
+}
+.toggle-btn.active .btn-icon { opacity: 1; }
+.toggle-btn .btn-icon.scribble-icon {
+  background: none; border: 1.5px solid currentColor; border-radius: 1px; position: relative;
+}
+.toggle-btn .btn-icon.scribble-icon::after {
+  content: ''; position: absolute; inset: 2px; background: currentColor; border-radius: 50%; opacity: 0.5;
+}
+.toggle-divider {
+  width: 1px; height: 20px; background: rgba(122,128,105,0.2); flex-shrink: 0; position: relative; z-index: 2;
+}
+
+/* ── Section Panels ── */
+.section-panel { display: none; }
+.section-panel.active { display: block; }
+
+/* ── Section intro strip ── */
+.section-intro {
+  padding: 0 5rem 3rem;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.section-intro-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 300;
+  color: var(--paper); letter-spacing: 0.03em;
+}
+.section-intro-meta {
+  font-size: 0.6rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive); text-align: right;
+}
+
+/* ── Pinterest-Style Masonry Grid ── */
+.gallery-grid {
+  column-count: 3;
+  column-gap: var(--gap);
+  padding: 0 5rem;
+  max-width: 100%;
+}
+
+.g-item {
+  break-inside: avoid;
+  margin-bottom: var(--gap);
+  position: relative;
+  overflow: hidden;
+  background: #111009;
+  border-radius: 12px;
+  cursor: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.g-item.revealed { opacity: 1; transform: translateY(0); }
+
+.g-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.82) brightness(0.85);
+  transition: transform 1s cubic-bezier(0.25,0.46,0.45,0.94), filter 1s ease;
+}
+
+.g-item:hover img {
+  transform: scale(1.04);
+  filter: saturate(0.5) brightness(0.45);
+}
+
+.g-item-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(6,4,2,0.97) 0%, rgba(6,4,2,0.4) 45%, transparent 100%);
+  opacity: 0; transition: opacity 0.5s ease;
+}
+.g-item:hover .g-item-overlay { opacity: 1; }
+
+.g-item-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 2rem 1.2rem 1.2rem;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  z-index: 2;
+}
+.g-item:hover .g-item-label { opacity: 1; transform: translateY(0); }
+
+.g-item-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 300;
+  color: var(--paper); font-style: italic; line-height: 1.25;
+  margin-bottom: 0.3rem;
+}
+.g-item-sub {
+  font-size: 0.54rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive-light);
+}
+.g-item-num {
+  position: absolute; top: 1rem; left: 1.2rem;
+  font-size: 0.5rem; letter-spacing: 0.3em; color: var(--olive-light);
+  font-family: 'Jost', sans-serif; font-weight: 300;
+  opacity: 0; transition: opacity 0.4s ease; z-index: 3;
+}
+.g-item:hover .g-item-num { opacity: 1; }
+
+/* ── Footer strip ── */
+.page-footer {
+  border-top: 1px solid rgba(122,128,105,0.1);
+  padding: 2.5rem 5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6rem;
+}
+.footer-name {
+  font-family: 'Cormorant SC', serif; font-size: 0.8rem;
+  letter-spacing: 0.22em; color: var(--olive);
+}
+.footer-back {
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--olive); text-decoration: none;
+  transition: color 0.3s ease, gap 0.3s ease;
+}
+.footer-back:hover { color: var(--beige-light); gap: 1rem; }
+
+/* ══ LIGHTBOX ══ */
+#lightbox {
+  position: fixed; inset: 0; z-index: 9995;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8,6,3,0);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease, background 0.5s ease;
+  flex-direction: column; padding: 3.5rem 2rem 0;
+}
+#lightbox.open {
+  opacity: 1; pointer-events: all;
+  background: rgba(8,6,3,0.97);
+}
+.lightbox-inner {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  max-width: 88vw; max-height: 80vh;
+  transform: scale(0.93) translateY(18px);
+  transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+#lightbox.open .lightbox-inner { transform: scale(1) translateY(0); }
+.lightbox-img {
+  display: block; max-width: 100%; max-height: 72vh;
+  object-fit: contain; box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  transition: opacity 0.2s ease;
+}
+.lightbox-caption {
+  width: 100%; padding: 1.4rem 0 0;
+  display: flex; align-items: baseline;
+  justify-content: space-between; gap: 2rem;
+}
+.lightbox-caption-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 300;
+  color: var(--paper); font-style: italic; line-height: 1.2;
+}
+.lightbox-caption-sub {
+  font-size: 0.57rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--olive-light); white-space: nowrap; flex-shrink: 0;
+}
+.lightbox-close {
+  position: fixed; top: 1.8rem; right: 2.5rem;
+  background: transparent; border: 1px solid rgba(122,128,105,0.28);
+  color: var(--olive-pale); font-family: 'Jost', sans-serif;
+  font-size: 0.57rem; letter-spacing: 0.3em; text-transform: uppercase;
+  padding: 0.6rem 1.2rem; cursor: none;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  z-index: 9996;
+}
+.lightbox-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none;
+  color: rgba(209,203,192,0.28); font-size: 1.9rem; padding: 1rem 1.6rem;
+  cursor: none; transition: color 0.3s ease; z-index: 9996;
+}
+.lightbox-nav.prev { left: 0.8rem; }
+.lightbox-nav.next { right: 0.8rem; }
+.lightbox-counter {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.54rem; letter-spacing: 0.36em; text-transform: uppercase; color: var(--olive);
+}
+
+/* ══ MOBILE ══ */
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  a, button { cursor: auto; }
+  .cursor, .cursor-ring { display: none !important; }
+  nav { padding: 1.2rem 1.5rem; }
+  nav.scrolled { padding: 0.9rem 1.5rem; }
+  .page-header { padding: 9rem 1.5rem 3rem; }
+  .toggle-wrapper { padding: 2rem 0 3rem; top: 60px; }
+  .section-intro { padding: 0 1.5rem 2.5rem; flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+  .gallery-grid { column-count: 2; column-gap: 8px; padding: 0 8px; }
+  .g-item { margin-bottom: 8px; border-radius: 8px; }
+  .g-item-label { display: none; }
+  .lightbox-img { max-height: 64vh; }
+  .lightbox-close { top: 1rem; right: 1rem; }
+  .page-footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="mainNav">
+  <a href="index.html" class="nav-back">Portfolio</a>
+
+</nav>
+
+<header class="page-header">
+  <div class="header-label">Visual Art</div>
+  <h1 class="page-title">Beyond<br><em>the Frame</em></h1>
+  <div class="page-subtitle">A visual archive · Two bodies of work</div>
+  <p class="header-desc">Works on paper, canvas, and screen — exploring the image beyond cinema.</p>
+</header>
+
+<div class="toggle-wrapper">
+  <div class="toggle-track" id="toggleTrack">
+    <div class="toggle-pill" id="togglePill"></div>
+    <button class="toggle-btn active" id="btnScribble" data-section="scribble">
+      <span class="btn-icon scribble-icon"></span>Scribble
+    </button>
+    <div class="toggle-divider"></div>
+    <button class="toggle-btn" id="btnSolid" data-section="solid">
+      <span class="btn-icon"></span>Solid
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIBBLE SECTION
+     To add/change images: edit the src="" attributes below.
+     Each .g-item is one artwork. Copy/paste a block to add more.
+     data-title and data-sub appear in the hover label and lightbox.
+═══════════════════════════════════════════ -->
+<div class="section-panel active" id="panel-scribble">
+  <div class="section-intro">
+    <h2 class="section-intro-title">Scribble</h2>
+    <div class="section-intro-meta">Line · Gesture · Charcoal<br>15 works</div>
+  </div>
+  <div class="gallery-grid" id="grid-scribble">
+
+    <div class="g-item" data-title="Study in Silence" data-sub="2024 · Charcoal">
+      <span class="g-item-num">01</span>
+      <img src="https://picsum.photos/600/800?random=1" loading="lazy" alt="Study in Silence">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Study in Silence</div>
+        <div class="g-item-sub">2024 · Charcoal</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Inward" data-sub="2023 · Graphite">
+      <span class="g-item-num">02</span>
+      <img src="https://picsum.photos/600/400?random=2" loading="lazy" alt="Inward">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Inward</div>
+        <div class="g-item-sub">2023 · Graphite</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="The String" data-sub="2025 · Ink">
+      <span class="g-item-num">03</span>
+      <img src="https://picsum.photos/600/900?random=3" loading="lazy" alt="The String">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">The String</div>
+        <div class="g-item-sub">2025 · Ink</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Untitled I" data-sub="2024 · Conte">
+      <span class="g-item-num">04</span>
+      <img src="https://picsum.photos/600/700?random=4" loading="lazy" alt="Untitled I">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Untitled I</div>
+        <div class="g-item-sub">2024 · Conte</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Peripheral" data-sub="2024 · Charcoal">
+      <span class="g-item-num">05</span>
+      <img src="https://picsum.photos/600/500?random=5" loading="lazy" alt="Peripheral">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Peripheral</div>
+        <div class="g-item-sub">2024 · Charcoal</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Head Study" data-sub="2023 · Graphite">
+      <span class="g-item-num">06</span>
+      <img src="https://picsum.photos/600/850?random=6" loading="lazy" alt="Head Study">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Head Study</div>
+        <div class="g-item-sub">2023 · Graphite</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="The Line" data-sub="2025 · Ink">
+      <span class="g-item-num">07</span>
+      <img src="https://picsum.photos/600/600?random=7" loading="lazy" alt="The Line">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">The Line</div>
+        <div class="g-item-sub">2025 · Ink</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Crowd Memory" data-sub="2024 · Charcoal">
+      <span class="g-item-num">08</span>
+      <img src="https://picsum.photos/600/950?random=8" loading="lazy" alt="Crowd Memory">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Crowd Memory</div>
+        <div class="g-item-sub">2024 · Charcoal</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Noise" data-sub="2023 · Media">
+      <span class="g-item-num">09</span>
+      <img src="https://picsum.photos/600/450?random=9" loading="lazy" alt="Noise">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Noise</div>
+        <div class="g-item-sub">2023 · Media</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Drift" data-sub="2024 · Conte">
+      <span class="g-item-num">10</span>
+      <img src="https://picsum.photos/600/750?random=10" loading="lazy" alt="Drift">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Drift</div>
+        <div class="g-item-sub">2024 · Conte</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Before Light" data-sub="2025 · Graphite">
+      <span class="g-item-num">11</span>
+      <img src="https://picsum.photos/600/800?random=11" loading="lazy" alt="Before Light">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Before Light</div>
+        <div class="g-item-sub">2025 · Graphite</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Unfinished" data-sub="2024 · Charcoal">
+      <span class="g-item-num">12</span>
+      <img src="https://picsum.photos/600/550?random=12" loading="lazy" alt="Unfinished">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Unfinished</div>
+        <div class="g-item-sub">2024 · Charcoal</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Hands" data-sub="2023 · Ink">
+      <span class="g-item-num">13</span>
+      <img src="https://picsum.photos/600/850?random=13" loading="lazy" alt="Hands">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Hands</div>
+        <div class="g-item-sub">2023 · Ink</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Crossing" data-sub="2025 · Graphite">
+      <span class="g-item-num">14</span>
+      <img src="https://picsum.photos/600/700?random=14" loading="lazy" alt="Crossing">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Crossing</div>
+        <div class="g-item-sub">2025 · Graphite</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Weight" data-sub="2024 · Media">
+      <span class="g-item-num">15</span>
+      <img src="./assets/10.webp" loading="lazy" alt="Weight">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Weight</div>
+        <div class="g-item-sub">2024 · Media</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SOLID SECTION
+     To add/change images: edit the src="" attributes below.
+═══════════════════════════════════════════ -->
+<div class="section-panel" id="panel-solid">
+  <div class="section-intro">
+    <h2 class="section-intro-title">Solid</h2>
+    <div class="section-intro-meta">Oil · Ink · Form<br>15 works</div>
+  </div>
+  <div class="gallery-grid" id="grid-solid">
+
+    <div class="g-item" data-title="Man with Pipe" data-sub="2026 · Oil">
+      <span class="g-item-num">01</span>
+      <img src="https://picsum.photos/600/900?random=16" loading="lazy" alt="Man with Pipe">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Man with Pipe</div>
+        <div class="g-item-sub">2026 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="The Watcher" data-sub="2025 · Oil">
+      <span class="g-item-num">02</span>
+      <img src="https://picsum.photos/600/600?random=17" loading="lazy" alt="The Watcher">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">The Watcher</div>
+        <div class="g-item-sub">2025 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Reflections" data-sub="2024 · Digital">
+      <span class="g-item-num">03</span>
+      <img src="https://picsum.photos/600/800?random=18" loading="lazy" alt="Reflections">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Reflections</div>
+        <div class="g-item-sub">2024 · Digital</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Interior" data-sub="2025 · Oil">
+      <span class="g-item-num">04</span>
+      <img src="https://picsum.photos/600/400?random=19" loading="lazy" alt="Interior">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Interior</div>
+        <div class="g-item-sub">2025 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Still Pool" data-sub="2024 · Gouache">
+      <span class="g-item-num">05</span>
+      <img src="https://picsum.photos/600/750?random=20" loading="lazy" alt="Still Pool">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Still Pool</div>
+        <div class="g-item-sub">2024 · Gouache</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Figure" data-sub="2025 · Oil">
+      <span class="g-item-num">06</span>
+      <img src="https://picsum.photos/600/850?random=21" loading="lazy" alt="Figure">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Figure</div>
+        <div class="g-item-sub">2025 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Dusk" data-sub="2024 · Oil">
+      <span class="g-item-num">07</span>
+      <img src="https://picsum.photos/600/650?random=22" loading="lazy" alt="Dusk">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Dusk</div>
+        <div class="g-item-sub">2024 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Absent" data-sub="2025 · Acrylic">
+      <span class="g-item-num">08</span>
+      <img src="https://picsum.photos/600/500?random=23" loading="lazy" alt="Absent">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Absent</div>
+        <div class="g-item-sub">2025 · Acrylic</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Threshold" data-sub="2024 · Oil">
+      <span class="g-item-num">09</span>
+      <img src="https://picsum.photos/600/950?random=24" loading="lazy" alt="Threshold">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Threshold</div>
+        <div class="g-item-sub">2024 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Mud" data-sub="2025 · Media">
+      <span class="g-item-num">10</span>
+      <img src="https://picsum.photos/600/700?random=25" loading="lazy" alt="Mud">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Mud</div>
+        <div class="g-item-sub">2025 · Media</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Old Man" data-sub="2024 · Oil">
+      <span class="g-item-num">11</span>
+      <img src="https://picsum.photos/600/800?random=26" loading="lazy" alt="Old Man">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Old Man</div>
+        <div class="g-item-sub">2024 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Surface" data-sub="2025 · Gouache">
+      <span class="g-item-num">12</span>
+      <img src="https://picsum.photos/600/600?random=27" loading="lazy" alt="Surface">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Surface</div>
+        <div class="g-item-sub">2025 · Gouache</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Moment" data-sub="2024 · Oil">
+      <span class="g-item-num">13</span>
+      <img src="./assets/about image.webp" loading="lazy" alt="Moment">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Moment</div>
+        <div class="g-item-sub">2024 · Oil</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Blue" data-sub="2025 · Acrylic">
+      <span class="g-item-num">14</span>
+      <img src="https://picsum.photos/600/750?random=29" loading="lazy" alt="Blue">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Blue</div>
+        <div class="g-item-sub">2025 · Acrylic</div>
+      </div>
+    </div>
+
+    <div class="g-item" data-title="Last Light" data-sub="2026 · Oil">
+      <span class="g-item-num">15</span>
+      <img src="https://picsum.photos/600/900?random=30" loading="lazy" alt="Last Light">
+      <div class="g-item-overlay"></div>
+      <div class="g-item-label">
+        <div class="g-item-title">Last Light</div>
+        <div class="g-item-sub">2026 · Oil</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-name">Sudarshan</div>
+  <a href="index.html" class="footer-back">Return to Portfolio</a>
+</footer>
+
+<div id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕ Close</button>
+  <button class="lightbox-nav prev" id="lightboxPrev">←</button>
+  <button class="lightbox-nav next" id="lightboxNext">→</button>
+  <div class="lightbox-inner">
+    <img class="lightbox-img" id="lightboxImg" src="">
+    <div class="lightbox-caption">
+      <div class="lightbox-caption-title" id="lightboxTitle"></div>
+      <div class="lightbox-caption-sub" id="lightboxSub"></div>
+    </div>
+  </div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<script>
+/* ── Intersection observer: reveal items on scroll ── */
+const itemRevealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('revealed');
+      itemRevealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.g-item').forEach(el => itemRevealObserver.observe(el));
+
+/* ── Lightbox ── */
+const lb        = document.getElementById('lightbox');
+const lbImg     = document.getElementById('lightboxImg');
+const lbTitle   = document.getElementById('lightboxTitle');
+const lbSub     = document.getElementById('lightboxSub');
+const lbCounter = document.getElementById('lightboxCounter');
+
+let lbItems  = [];   // flat list of .g-item nodes for active section
+let lbIndex  = 0;
+
+function getActiveItems() {
+  const activePanel = document.querySelector('.section-panel.active');
+  return Array.from(activePanel.querySelectorAll('.g-item'));
+}
+
+function openLightbox(items, index) {
+  lbItems = items;
+  lbIndex = index;
+  showLbSlide();
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function showLbSlide() {
+  const el  = lbItems[lbIndex];
+  const img = el.querySelector('img');
+  lbImg.src          = img.src;
+  lbTitle.textContent = el.dataset.title;
+  lbSub.textContent   = el.dataset.sub;
+  lbCounter.textContent = `${lbIndex + 1} / ${lbItems.length}`;
+}
+
+function closeLightbox() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navigateLb(dir) {
+  lbIndex = (lbIndex + dir + lbItems.length) % lbItems.length;
+  lbImg.style.opacity = '0';
+  setTimeout(() => { showLbSlide(); lbImg.style.opacity = '1'; }, 150);
+}
+
+/* Wire up click on every gallery item */
+document.querySelectorAll('.g-item').forEach((el) => {
+  el.addEventListener('click', () => {
+    const items = getActiveItems();
+    const index = items.indexOf(el);
+    openLightbox(items, index);
+  });
+});
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightboxPrev').addEventListener('click', () => navigateLb(-1));
+document.getElementById('lightboxNext').addEventListener('click', () => navigateLb(1));
+lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
+
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLightbox();
+  if (e.key === 'ArrowLeft')   navigateLb(-1);
+  if (e.key === 'ArrowRight')  navigateLb(1);
+});
+
+/* ── Toggle ── */
+const track      = document.getElementById('toggleTrack');
+const btnScribble = document.getElementById('btnScribble');
+const btnSolid    = document.getElementById('btnSolid');
+
+function switchSection(to) {
+  track.classList.toggle('solid-active', to === 'solid');
+  btnScribble.classList.toggle('active', to === 'scribble');
+  btnSolid.classList.toggle('active', to === 'solid');
+  document.querySelectorAll('.section-panel').forEach(p =>
+    p.classList.toggle('active', p.id === 'panel-' + to)
+  );
+}
+btnScribble.addEventListener('click', () => switchSection('scribble'));
+btnSolid.addEventListener('click',    () => switchSection('solid'));
+
+/* ── Custom cursor ── */
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+if (window.innerWidth > 768) {
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+  (function anim() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(anim);
+  })();
+}
+
+/* ── Nav scroll ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+</script>
+</body>
+</html>
